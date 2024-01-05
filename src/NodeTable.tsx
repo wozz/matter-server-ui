@@ -168,7 +168,7 @@ const NodeTable: React.FC<NodeTableProps> = ({
   }));
   const onRemoveNodeFinish = (values: any) => {
     console.log(`form values: ${JSON.stringify(values)}`);
-    removeNode(values.node_id);
+    removeNode(Number(values.node_id));
     setRemoveNodeOpen(false);
   };
 
