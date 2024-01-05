@@ -18,6 +18,8 @@ import {
   CheckSquareOutlined,
   DeleteOutlined,
   EnterOutlined,
+  MonitorOutlined,
+  ProfileOutlined,
   ReloadOutlined,
   SearchOutlined,
 } from "@ant-design/icons";
@@ -131,26 +133,32 @@ const NodeTable: React.FC<NodeTableProps> = ({
       key: "action",
       render: (text, record) => (
         <Space>
-          <Button
-            onClick={() => onInterviewNode(record.node_id)}
-            type="primary"
-            size="small"
-          >
-            Interview Node
-          </Button>
-          <Button
-            onClick={() => showModal(record.node_id)}
-            type="default"
-            size="small"
-          >
-            Raw Data
-          </Button>
-          <Button
-            shape="circle"
-            size="small"
-            onClick={() => reloadNode(record.node_id)}
-            icon={<ReloadOutlined />}
-          />
+          <Tooltip title="interview node">
+            <Button
+              onClick={() => onInterviewNode(record.node_id)}
+              type="primary"
+              size="small"
+              shape="circle"
+              icon={<MonitorOutlined />}
+            />
+          </Tooltip>
+          <Tooltip title="raw data">
+            <Button
+              onClick={() => showModal(record.node_id)}
+              type="default"
+              size="small"
+              shape="circle"
+              icon={<ProfileOutlined />}
+            />
+          </Tooltip>
+          <Tooltip title="reload node">
+            <Button
+              shape="circle"
+              size="small"
+              onClick={() => reloadNode(record.node_id)}
+              icon={<ReloadOutlined />}
+            />
+          </Tooltip>
         </Space>
       ),
     },
