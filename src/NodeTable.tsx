@@ -2,7 +2,10 @@ import React, { useState } from "react";
 import {
   Button,
   Col,
+  Form,
+  Input,
   Modal,
+  Popover,
   Row,
   Space,
   Table,
@@ -13,6 +16,8 @@ import type { ColumnsType } from "antd/es/table";
 import { MatterNodeData } from "./Model";
 import {
   CheckSquareOutlined,
+  DeleteOutlined,
+  EnterOutlined,
   ReloadOutlined,
   SearchOutlined,
 } from "@ant-design/icons";
@@ -33,7 +38,12 @@ interface NodeTableProps {
   reloadNodes: () => void;
   reloadNode: (nodeId: number) => void;
   discover: () => void;
+  removeNode: (nodeId: number) => void;
 }
+
+type RemoveNodeType = {
+  node_id?: string;
+};
 
 interface ColumnData {
   key: number | string;
@@ -52,10 +62,16 @@ const NodeTable: React.FC<NodeTableProps> = ({
   reloadNodes,
   reloadNode,
   discover,
+  removeNode,
 }) => {
-  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
   const [selectedNodeData, setSelectedNodeData] =
     useState<MatterNodeData | null>(null);
+  const [removeNodeOpen, setRemoveNodeOpen] = useState<boolean>(false);
+
+  const handleRemoveNodeOpenChange = (newOpen: boolean) => {
+    setRemoveNodeOpen(newOpen);
+  };
 
   const showModal = (nodeId: number) => {
     const nodeData = nodes.find((n) => {
@@ -150,6 +166,11 @@ const NodeTable: React.FC<NodeTableProps> = ({
     product_name: nodeProductName(n),
     serial_number: nodeSerialNumber(n),
   }));
+  const onRemoveNodeFinish = (values: any) => {
+    console.log(`form values: ${JSON.stringify(values)}`);
+    removeNode(values.node_id);
+    setRemoveNodeOpen(false);
+  };
 
   return (
     <>
@@ -160,6 +181,36 @@ const NodeTable: React.FC<NodeTableProps> = ({
           </Col>
           <Col flex="50px">
             <Space>
+              <Popover
+                content={
+                  <>
+                    <Form
+                      layout="inline"
+                      onFinish={onRemoveNodeFinish}
+                      autoComplete="off"
+                    >
+                      <Form.Item<RemoveNodeType> label="Node ID" name="node_id">
+                        <Input />
+                      </Form.Item>
+                      <Form.Item>
+                        <Button
+                          htmlType="submit"
+                          type="primary"
+                          size="small"
+                          shape="circle"
+                          icon={<EnterOutlined />}
+                        />
+                      </Form.Item>
+                    </Form>
+                  </>
+                }
+                title="Remove Node by ID"
+                trigger="click"
+                open={removeNodeOpen}
+                onOpenChange={handleRemoveNodeOpenChange}
+              >
+                <Button shape="circle" size="small" icon={<DeleteOutlined />} />
+              </Popover>
               <Tooltip title="discover nodes">
                 <Button
                   shape="circle"

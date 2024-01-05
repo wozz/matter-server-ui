@@ -151,6 +151,17 @@ function App() {
     }
   };
 
+  const handleRemoveNode = (nodeId: number) => {
+    console.log(`remove node: ${nodeId}`);
+    if (socketService) {
+      socketService.sendCommand("remove_node", { node_id: nodeId }, (data) => {
+        console.log(`node remove complete: ${JSON.stringify(data)}`);
+      });
+    } else {
+      console.error("connection not established");
+    }
+  };
+
   const toggleSettings = () => {
     setShowSettings((prev) => !prev);
   };
@@ -202,6 +213,7 @@ function App() {
                 reloadNodes={handleReloadNodes}
                 reloadNode={handleReloadNode}
                 discover={handleDiscover}
+                removeNode={handleRemoveNode}
               />
               {hasBridgeNodes && <EndpointTable nodes={allNodes} />}
               <EventMessagesLog eventMessages={eventMessages} />
