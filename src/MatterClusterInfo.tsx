@@ -17,6 +17,19 @@ const findClusterById = (specMatter: any, clusterId: any) => {
   return cluster || null;
 };
 
+const translateEnum = (type: string, value: any, dataTypeInfo: any) => {
+  if (!type || !type.endsWith("Enum")) {
+    return value;
+  }
+  if (!dataTypeInfo || !dataTypeInfo.hasOwnProperty("children")) {
+    return value;
+  }
+  const mappedValue = dataTypeInfo.children.find(
+    (child: any) => parseInt(child.id, 10) === value,
+  );
+  return mappedValue.name;
+};
+
 const parseClusterData = (specMatter: any, clusterId: any, attributes: any) => {
   const clusterInfo = findClusterById(specMatter, clusterId);
   if (!clusterInfo) {
@@ -30,6 +43,13 @@ const parseClusterData = (specMatter: any, clusterId: any, attributes: any) => {
           child.tag === "attribute" &&
           parseInt(child.id, 10) === parseInt(attributeId, 10),
       );
+      const dataTypeInfo: any = clusterInfo.children.find(
+        (child: any) =>
+          attributeInfo &&
+          child &&
+          child.tag === "datatype" &&
+          child.name === attributeInfo.type,
+      );
       if (attributeInfo) {
         acc[attributeId] = {
           name: attributeInfo.name,
@@ -37,6 +57,7 @@ const parseClusterData = (specMatter: any, clusterId: any, attributes: any) => {
           children: attributeInfo.children || [],
           details: attributeInfo.details,
           description: attributeInfo.description,
+          dataTypeInfo: dataTypeInfo,
         };
       }
       return acc;
@@ -92,7 +113,11 @@ const MatterClusterInfo: React.FC<ClusterProps> = ({
               name: attribute.name,
               type: attribute.type,
               children: attribute.children,
-              values: attributes[attributeId],
+              values: translateEnum(
+                attribute.type,
+                attributes[attributeId],
+                attribute.dataTypeInfo,
+              ),
               details: attribute.details,
               description: attribute.description,
             }),
