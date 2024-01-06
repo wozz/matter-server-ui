@@ -1,7 +1,7 @@
 import React from "react";
 import { Collapse } from "antd";
 import { MatterNodeData } from "./Model";
-import MatterClusterInfo from "./MatterClusterInfo";
+import MatterClusterInfo, { clusterById } from "./MatterClusterInfo";
 
 interface NodeDataProps {
   data: MatterNodeData | null;
@@ -50,7 +50,11 @@ const NodeData: React.FC<NodeDataProps> = ({ data }) => {
                 items={Object.entries(clusters).map(
                   ([clusterId, attrs], ii) => ({
                     key: ii.toString(),
-                    label: `Cluster ${clusterId}`,
+                    label: `Cluster ${clusterId} [${
+                      clusterById(clusterId)
+                        ? clusterById(clusterId).name || "unnamed"
+                        : "unknown"
+                    }]`,
                     children: (
                       <MatterClusterInfo
                         clusterId={clusterId}
