@@ -2,7 +2,6 @@ import React from "react";
 import { Collapse } from "antd";
 import { MatterNodeData } from "./Model";
 import MatterClusterInfo from "./MatterClusterInfo";
-const { Panel } = Collapse;
 
 interface NodeDataProps {
   data: MatterNodeData | null;
@@ -41,19 +40,30 @@ const NodeData: React.FC<NodeDataProps> = ({ data }) => {
       <p>Available: {data.available ? "Yes" : "No"}</p>
       <p>Is Bridge: {data.is_bridge ? "Yes" : "No"}</p>
 
-      <Collapse>
-        {Object.entries(organizedAttributes).map(([endpointId, clusters]) => (
-          <Panel header={`Endpoint ${endpointId}`} key={endpointId}>
-            <Collapse>
-              {Object.entries(clusters).map(([clusterId, attrs]) => (
-                <Panel header={`Cluster ${clusterId}`} key={clusterId}>
-                  <MatterClusterInfo clusterId={clusterId} attributes={attrs} />
-                </Panel>
-              ))}
-            </Collapse>
-          </Panel>
-        ))}
-      </Collapse>
+      <Collapse
+        items={Object.entries(organizedAttributes).map(
+          ([endpointId, clusters], i) => ({
+            key: i.toString(),
+            label: `Endpoint ${endpointId}`,
+            children: (
+              <Collapse
+                items={Object.entries(clusters).map(
+                  ([clusterId, attrs], ii) => ({
+                    key: ii.toString(),
+                    label: `Cluster ${clusterId}`,
+                    children: (
+                      <MatterClusterInfo
+                        clusterId={clusterId}
+                        attributes={attrs}
+                      />
+                    ),
+                  }),
+                )}
+              />
+            ),
+          }),
+        )}
+      />
     </>
   );
 };
