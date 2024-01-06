@@ -117,17 +117,17 @@ const NodeTable: React.FC<NodeTableProps> = ({
     {
       title: "Vendor",
       dataIndex: "vendor",
-      width: "150px",
+      width: "170px",
     },
     {
       title: "Product Name",
       dataIndex: "product_name",
-      width: "240px",
+      width: "250px",
     },
     {
       title: "Serial",
       dataIndex: "serial_number",
-      width: "150px",
+      width: "160px",
       render: (text, record) => (
         <>{record.serial_number && <Text code>{record.serial_number}</Text>}</>
       ),
@@ -135,7 +135,7 @@ const NodeTable: React.FC<NodeTableProps> = ({
     {
       title: "",
       key: "action",
-      width: "150px",
+      width: "180px",
       render: (text, record) => (
         <Space>
           <TooltipButton

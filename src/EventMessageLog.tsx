@@ -80,7 +80,7 @@ const createUpdateInfo = (
       }
       return (
         <>
-          <Text strong>[{attributeUpdate[0]}]</Text>
+          <Text strong>[{attributeUpdate[0]}]</Text>{" "}
           <Text>{nodeProductName(node)}</Text>{" "}
           <Text type="secondary">{nodeSerialNumber(node)}</Text>
         </>
