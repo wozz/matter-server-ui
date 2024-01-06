@@ -27,7 +27,7 @@ const translateEnum = (type: string, value: any, dataTypeInfo: any) => {
   const mappedValue = dataTypeInfo.children.find(
     (child: any) => parseInt(child.id, 10) === value,
   );
-  return mappedValue.name;
+  return mappedValue && mappedValue.name ? mappedValue.name : value;
 };
 
 const parseClusterData = (specMatter: any, clusterId: any, attributes: any) => {
