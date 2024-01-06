@@ -35,6 +35,7 @@ const parseClusterData = (specMatter: any, clusterId: any, attributes: any) => {
           name: attributeInfo.name,
           type: attributeInfo.type,
           children: attributeInfo.children || [],
+          details: attributeInfo.details,
         };
       }
       return acc;
@@ -88,11 +89,20 @@ const MatterClusterInfo: React.FC<ClusterProps> = ({
               type: attribute.type,
               children: attribute.children,
               values: attributes[attributeId],
+              details: attribute.details,
             }),
           )}
           renderItem={(item) => (
             <div key={item.key}>
-              <Text strong>{item.name}</Text>{" "}
+              <Tooltip
+                title={
+                  item.details
+                    ? `${item.details}`
+                    : `no attribute details available`
+                }
+              >
+                <Text strong>{item.name}</Text>
+              </Tooltip>{" "}
               <Text type="secondary">[{item.type}]</Text>:{" "}
               <Tooltip
                 title={
