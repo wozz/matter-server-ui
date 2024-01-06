@@ -1,5 +1,5 @@
 import React from "react";
-import { List, Space, Tooltip } from "antd";
+import { List, Tooltip } from "antd";
 
 import { SpecMatter } from "./spec";
 
