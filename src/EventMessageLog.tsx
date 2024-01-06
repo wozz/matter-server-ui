@@ -3,6 +3,7 @@ import { Col, Row, Table, Typography } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { EventMessage } from "./Model";
 import JSONPretty from "react-json-pretty";
+import DisplayDate from "./DisplayDate";
 const { Title } = Typography;
 
 interface EventMessageLogProps {
@@ -12,7 +13,7 @@ interface EventMessageLogProps {
 interface EventMessageRow {
   key: number;
   event: string;
-  receive_time: string;
+  receive_time: React.ReactNode;
   data: string;
 }
 
@@ -36,11 +37,11 @@ const columns: ColumnsType<EventMessageRow> = [
 ];
 
 const EventMessageLog: React.FC<EventMessageLogProps> = ({ eventMessages }) => {
-  const eventMessageData = eventMessages.map((e, i) => ({
+  const eventMessageData: EventMessageRow[] = eventMessages.map((e, i) => ({
     key: i,
     event: e.event.event,
     data: JSON.stringify(e.event.data),
-    receive_time: e.receive_time.toLocaleString(),
+    receive_time: <DisplayDate date={e.receive_time.toUTCString()} />,
   }));
 
   return (

@@ -1,7 +1,9 @@
 import React from "react";
-import { Collapse } from "antd";
+import { Collapse, Typography } from "antd";
 import { MatterNodeData } from "./Model";
 import MatterClusterInfo, { clusterById } from "./MatterClusterInfo";
+import DisplayDate from "./DisplayDate";
+const { Text } = Typography;
 
 interface NodeDataProps {
   data: MatterNodeData | null;
@@ -34,11 +36,24 @@ const NodeData: React.FC<NodeDataProps> = ({ data }) => {
   const organizedAttributes = organizeAttributes(data.attributes);
   return (
     <>
-      <p>Date Commissioned: {data.date_commissioned}</p>
-      <p>Last Interview: {data.last_interview}</p>
-      <p>Interview Version: {data.interview_version}</p>
-      <p>Available: {data.available ? "Yes" : "No"}</p>
-      <p>Is Bridge: {data.is_bridge ? "Yes" : "No"}</p>
+      <Text>
+        Date Commissioned: <DisplayDate date={data.date_commissioned} />
+      </Text>
+      <br />
+      <Text>
+        Last Interview: <DisplayDate date={data.last_interview} />
+      </Text>
+      <br />
+      <Text>Interview Version: {data.interview_version}</Text>
+      <br />
+      <Text>Available: {data.available ? "Yes" : "No"}</Text>
+      <br />
+      {data.is_bridge && (
+        <>
+          <Text>Is Bridge: Yes</Text>
+          <br />
+        </>
+      )}
 
       <Collapse
         items={Object.entries(organizedAttributes).map(

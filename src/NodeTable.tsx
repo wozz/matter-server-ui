@@ -17,7 +17,7 @@ import {
   nodeProductName,
   nodeSerialNumber,
 } from "./Attributes";
-import moment from "moment";
+import DisplayDate from "./DisplayDate";
 import JSONPretty from "react-json-pretty";
 import TooltipButton from "./TooltipButton";
 import PopoverButton from "./PopoverButton";
@@ -41,7 +41,7 @@ interface ColumnData {
   node_id: number;
   available: string;
   is_bridge: boolean;
-  last_interviewed: string;
+  last_interviewed: React.ReactNode;
   vendor: string;
   product_name: string;
   serial_number: string;
@@ -169,7 +169,7 @@ const NodeTable: React.FC<NodeTableProps> = ({
     node_id: n.node_id,
     available: n.available ? "online" : "unavailable",
     is_bridge: n.is_bridge,
-    last_interviewed: moment.utc(n.last_interview).fromNow(),
+    last_interviewed: <DisplayDate date={n.last_interview} />,
     vendor: nodeVendorName(n),
     product_name: nodeProductName(n),
     serial_number: nodeSerialNumber(n),
@@ -230,7 +230,6 @@ const NodeTable: React.FC<NodeTableProps> = ({
         width={800}
       >
         <NodeData data={selectedNodeData} />
-        {/*<NodeData data={selectedNodeData} />*/}
       </Modal>
       <Modal
         title="Node Raw Data"
