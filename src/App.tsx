@@ -143,109 +143,84 @@ function App() {
     setShowSettings(false);
   };
 
-  const handleReloadNodes = () => {
-    openNotificationWithIcon(
-      "info",
-      "Reloading Nodes",
-      "sending get_nodes command to server",
-    );
-    console.log("reloading nodes");
-    if (socketService) {
-      socketService.sendCommand("get_nodes", {}, handleAllNodes);
-    } else {
+  //
+  // commands
+  //
+
+  const wsCommand = (fn: () => void) => {
+    if (!socketService) {
       openNotificationWithIcon(
         "error",
-        "Reload Nodes Failed",
-        "server connection not established",
+        "Server Command Failed",
+        "cannot send command; server connection not established",
       );
       console.error("connection not established");
+      return;
     }
+    fn();
+  };
+
+  const handleReloadNodes = () => {
+    wsCommand(() => {
+      console.log("reloading nodes");
+      socketService!.sendCommand("get_nodes", {}, handleAllNodes);
+    });
   };
 
   const handleReloadNode = (nodeId: number) => {
-    console.log(`reloading node: ${nodeId}`);
-    if (socketService) {
-      socketService.sendCommand(
+    wsCommand(() => {
+      console.log(`reloading node: ${nodeId}`);
+      socketService!.sendCommand(
         "get_node",
         { node_id: nodeId },
         handleGetNodeResponse,
       );
-    } else {
-      openNotificationWithIcon(
-        "error",
-        "Reload Node Failed",
-        "server connection not established",
-      );
-      console.error("connection not established");
-    }
+    });
   };
 
   const handleDiscover = () => {
-    console.log("discovering nodes...");
-    if (socketService) {
-      socketService.sendCommand("discover", {}, handleDiscoverResponse);
-    } else {
-      openNotificationWithIcon(
-        "error",
-        "Discover Failed",
-        "server connection not established",
-      );
-      console.error("connection not established");
-    }
+    wsCommand(() => {
+      console.log("discovering nodes...");
+      socketService!.sendCommand("discover", {}, handleDiscoverResponse);
+    });
   };
 
   const handleInterviewNode = (nodeId: number) => {
-    console.log(`interviewing node: ${nodeId}`);
-    if (socketService) {
-      socketService.sendCommand(
+    wsCommand(() => {
+      console.log(`interviewing node: ${nodeId}`);
+      socketService!.sendCommand(
         "interview_node",
         { node_id: nodeId },
         (data) => {
           console.log(`node interview complete: ${JSON.stringify(data)}`);
         },
       );
-    } else {
-      openNotificationWithIcon(
-        "error",
-        "Interview Node Failed",
-        "server connection not established",
-      );
-      console.error("connection not established");
-    }
+    });
   };
 
   const handleRemoveNode = (nodeId: number) => {
-    console.log(`remove node: ${nodeId}`);
-    if (socketService) {
-      socketService.sendCommand("remove_node", { node_id: nodeId }, (data) => {
+    wsCommand(() => {
+      console.log(`remove node: ${nodeId}`);
+      socketService!.sendCommand("remove_node", { node_id: nodeId }, (data) => {
+        openNotificationWithIcon(
+          "success",
+          "Removed Node",
+          `successfully removed node ${nodeId}`,
+        );
         console.log(`node remove complete: ${JSON.stringify(data)}`);
       });
-    } else {
-      openNotificationWithIcon(
-        "error",
-        "Remove Node Failed",
-        "server connection not established",
-      );
-      console.error("connection not established");
-    }
+    });
   };
 
   const handleCommissionWithCode = (code: string) => {
-    console.log(`commission with code`);
-    if (socketService) {
-      socketService.sendCommand(
+    wsCommand(() => {
+      console.log(`commission with code`);
+      socketService!.sendCommand(
         "commission_with_code",
         { code: code, network_only: true },
         handleCommissionResponse,
       );
-    } else {
-      openNotificationWithIcon(
-        "error",
-        "Commission Failed",
-        "server connection not established",
-      );
-      console.error("connection not established");
-    }
+    });
   };
 
   const hasBridgeNodes = allNodes.some((n) => {
