@@ -1,13 +1,15 @@
 import React from "react";
 import { Col, Row, Table, Typography } from "antd";
 import type { ColumnsType } from "antd/es/table";
-import { EventMessage } from "./Model";
+import { EventMessage, MatterNodeData } from "./Model";
+import { nodeProductName, nodeSerialNumber } from "./Attributes";
 import JSONPretty from "react-json-pretty";
 import DisplayDate from "./DisplayDate";
 import AttributeInfoDisplay from "./AttributeInfoDisplay";
-const { Title } = Typography;
+const { Text, Title } = Typography;
 
 interface EventMessageLogProps {
+  nodeById: (nodeId: number) => MatterNodeData | undefined;
   eventMessages: EventMessage[];
 }
 
@@ -64,17 +66,34 @@ const parseEvent = (eventType: string, data: Object): React.ReactNode => {
   }
 };
 
-const createUpdateInfo = (eventType: string, data: Object): React.ReactNode => {
+const createUpdateInfo = (
+  eventType: string,
+  data: Object,
+  nodeById: (nodeId: number) => MatterNodeData | undefined,
+): React.ReactNode => {
   switch (eventType) {
     case "attribute_updated":
       const attributeUpdate = data as Array<any>;
-      return <>Node {attributeUpdate[0]} updated</>;
+      const node = nodeById(attributeUpdate[0]);
+      if (!node) {
+        return <>Node {attributeUpdate[0]} updated</>;
+      }
+      return (
+        <>
+          <Text strong>[{attributeUpdate[0]}]</Text>
+          <Text>{nodeProductName(node)}</Text>{" "}
+          <Text type="secondary">{nodeSerialNumber(node)}</Text>
+        </>
+      );
     default:
       return <></>;
   }
 };
 
-const EventMessageLog: React.FC<EventMessageLogProps> = ({ eventMessages }) => {
+const EventMessageLog: React.FC<EventMessageLogProps> = ({
+  nodeById,
+  eventMessages,
+}) => {
   const totalMessages = eventMessages.length;
   const eventMessageData: EventMessageRow[] = eventMessages.map((e, i) => ({
     key: totalMessages - i,
@@ -82,7 +101,7 @@ const EventMessageLog: React.FC<EventMessageLogProps> = ({ eventMessages }) => {
     data: e.event.data,
     receive_time: <DisplayDate reverse date={e.receive_time.toUTCString()} />,
     parsed: parseEvent(e.event.event, e.event.data),
-    updateInfo: createUpdateInfo(e.event.event, e.event.data),
+    updateInfo: createUpdateInfo(e.event.event, e.event.data, nodeById),
   }));
 
   return (

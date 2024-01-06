@@ -227,6 +227,12 @@ function App() {
     return n.is_bridge;
   });
 
+  const nodeById = (nodeId: number): MatterNodeData | undefined => {
+    return allNodes.find((n) => {
+      return n.node_id === nodeId;
+    });
+  };
+
   return (
     <ConfigProvider
       theme={{
@@ -284,7 +290,10 @@ function App() {
                     commissionWithCode={handleCommissionWithCode}
                   />
                   {hasBridgeNodes && <EndpointTable nodes={allNodes} />}
-                  <EventMessagesLog eventMessages={eventMessages} />
+                  <EventMessagesLog
+                    eventMessages={eventMessages}
+                    nodeById={nodeById}
+                  />
                 </Space>
               </Col>
             </Row>
