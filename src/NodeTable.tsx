@@ -1,23 +1,9 @@
 import React, { useState } from "react";
-import {
-  Badge,
-  Button,
-  Col,
-  Form,
-  Input,
-  Modal,
-  Popover,
-  Row,
-  Space,
-  Table,
-  Tooltip,
-  Typography,
-} from "antd";
+import { Badge, Col, Modal, Row, Space, Table, Typography } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { MatterNodeData } from "./Model";
 import {
   DeleteOutlined,
-  EnterOutlined,
   MonitorOutlined,
   PartitionOutlined,
   PlusCircleOutlined,
@@ -32,6 +18,8 @@ import {
 } from "./Attributes";
 import moment from "moment";
 import JSONPretty from "react-json-pretty";
+import TooltipButton from "./TooltipButton";
+import PopoverButton from "./PopoverButton";
 const { Text, Title } = Typography;
 
 var JSONPrettyMon = require("react-json-pretty/dist/monikai");
@@ -45,14 +33,6 @@ interface NodeTableProps {
   removeNode: (nodeId: number) => void;
   commissionWithCode: (code: string) => void;
 }
-
-type RemoveNodeType = {
-  node_id?: string;
-};
-
-type CommissionType = {
-  code?: string;
-};
 
 interface ColumnData {
   key: number | string;
@@ -77,15 +57,6 @@ const NodeTable: React.FC<NodeTableProps> = ({
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
   const [selectedNodeData, setSelectedNodeData] =
     useState<MatterNodeData | null>(null);
-  const [removeNodeOpen, setRemoveNodeOpen] = useState<boolean>(false);
-  const [commissionOpen, setCommissionOpen] = useState<boolean>(false);
-
-  const handleRemoveNodeOpenChange = (newOpen: boolean) => {
-    setRemoveNodeOpen(newOpen);
-  };
-  const handleCommissionOpenChange = (newOpen: boolean) => {
-    setCommissionOpen(newOpen);
-  };
 
   const showModal = (nodeId: number) => {
     const nodeData = nodes.find((n) => {
@@ -98,10 +69,9 @@ const NodeTable: React.FC<NodeTableProps> = ({
     setIsModalVisible(true);
   };
 
-  const onCommissionFinish = (values: any) => {
+  const onCommissionSubmit = (values: any) => {
     console.log(`form values: ${JSON.stringify(values)}`);
     commissionWithCode(values.code);
-    setCommissionOpen(false);
   };
 
   const columns: ColumnsType<ColumnData> = [
@@ -152,32 +122,22 @@ const NodeTable: React.FC<NodeTableProps> = ({
       width: "150px",
       render: (text, record) => (
         <Space>
-          <Tooltip title="interview node">
-            <Button
-              onClick={() => onInterviewNode(record.node_id)}
-              type="primary"
-              size="small"
-              shape="circle"
-              icon={<MonitorOutlined />}
-            />
-          </Tooltip>
-          <Tooltip title="raw data">
-            <Button
-              onClick={() => showModal(record.node_id)}
-              type="default"
-              size="small"
-              shape="circle"
-              icon={<ProfileOutlined />}
-            />
-          </Tooltip>
-          <Tooltip title="reload node">
-            <Button
-              shape="circle"
-              size="small"
-              onClick={() => reloadNode(record.node_id)}
-              icon={<ReloadOutlined />}
-            />
-          </Tooltip>
+          <TooltipButton
+            tooltipTitle="interview node"
+            onClick={() => onInterviewNode(record.node_id)}
+            type="primary"
+            icon={<MonitorOutlined />}
+          />
+          <TooltipButton
+            tooltipTitle="raw data"
+            onClick={() => showModal(record.node_id)}
+            icon={<ProfileOutlined />}
+          />
+          <TooltipButton
+            tooltipTitle="reload node"
+            onClick={() => reloadNode(record.node_id)}
+            icon={<ReloadOutlined />}
+          />
         </Space>
       ),
     },
@@ -193,10 +153,9 @@ const NodeTable: React.FC<NodeTableProps> = ({
     product_name: nodeProductName(n),
     serial_number: nodeSerialNumber(n),
   }));
-  const onRemoveNodeFinish = (values: any) => {
+  const onRemoveNodeSubmit = (values: any) => {
     console.log(`form values: ${JSON.stringify(values)}`);
     removeNode(Number(values.node_id));
-    setRemoveNodeOpen(false);
   };
 
   return (
@@ -208,86 +167,30 @@ const NodeTable: React.FC<NodeTableProps> = ({
           </Col>
           <Col flex="50px">
             <Space>
-              <Popover
-                content={
-                  <>
-                    <Form
-                      layout="inline"
-                      onFinish={onCommissionFinish}
-                      autoComplete="off"
-                    >
-                      <Form.Item<CommissionType> label="Code" name="code">
-                        <Input />
-                      </Form.Item>
-                      <Form.Item>
-                        <Button
-                          htmlType="submit"
-                          type="primary"
-                          size="small"
-                          shape="circle"
-                          icon={<EnterOutlined />}
-                        />
-                      </Form.Item>
-                    </Form>
-                  </>
-                }
-                title="Commission with Code"
-                trigger="click"
-                open={commissionOpen}
-                onOpenChange={handleCommissionOpenChange}
-              >
-                <Button
-                  shape="circle"
-                  size="small"
-                  icon={<PlusCircleOutlined />}
-                />
-              </Popover>
-              <Popover
-                content={
-                  <>
-                    <Form
-                      layout="inline"
-                      onFinish={onRemoveNodeFinish}
-                      autoComplete="off"
-                    >
-                      <Form.Item<RemoveNodeType> label="Node ID" name="node_id">
-                        <Input />
-                      </Form.Item>
-                      <Form.Item>
-                        <Button
-                          htmlType="submit"
-                          type="primary"
-                          size="small"
-                          shape="circle"
-                          icon={<EnterOutlined />}
-                        />
-                      </Form.Item>
-                    </Form>
-                  </>
-                }
-                title="Remove Node by ID"
-                trigger="click"
-                open={removeNodeOpen}
-                onOpenChange={handleRemoveNodeOpenChange}
-              >
-                <Button shape="circle" size="small" icon={<DeleteOutlined />} />
-              </Popover>
-              <Tooltip title="discover nodes">
-                <Button
-                  shape="circle"
-                  size="small"
-                  onClick={discover}
-                  icon={<SearchOutlined />}
-                />
-              </Tooltip>
-              <Tooltip title="reload nodes">
-                <Button
-                  shape="circle"
-                  size="small"
-                  onClick={reloadNodes}
-                  icon={<ReloadOutlined />}
-                />
-              </Tooltip>
+              <PopoverButton
+                inputLabel="Code"
+                inputName="code"
+                onSubmit={onCommissionSubmit}
+                buttonIcon={<PlusCircleOutlined />}
+                popoverTitle="Commission with Code"
+              />
+              <PopoverButton
+                inputLabel="Node ID"
+                inputName="node_id"
+                onSubmit={onRemoveNodeSubmit}
+                buttonIcon={<DeleteOutlined />}
+                popoverTitle="Remove Node by ID"
+              />
+              <TooltipButton
+                tooltipTitle="discover nodes"
+                onClick={discover}
+                icon={<SearchOutlined />}
+              />
+              <TooltipButton
+                tooltipTitle="reload nodes"
+                onClick={reloadNodes}
+                icon={<ReloadOutlined />}
+              />
             </Space>
           </Col>
         </Row>

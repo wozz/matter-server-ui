@@ -69,3 +69,5 @@ export interface WebSocketConfig {
   host: string;
   port: string;
 }
+
+export type NotificationType = "success" | "info" | "warning" | "error";

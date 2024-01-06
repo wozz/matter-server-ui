@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   Col,
   ConfigProvider,
@@ -25,13 +25,12 @@ import {
   EventType,
   isEvent,
   MatterNodeData,
+  NotificationType,
   SuccessResultMessage,
   WebSocketConfig,
 } from "./Model";
 import { HomeOutlined, InfoOutlined, SettingOutlined } from "@ant-design/icons";
 const { Header } = Layout;
-
-type NotificationType = "success" | "info" | "warning" | "error";
 
 function App() {
   const [messages, setMessages] = useState<string[]>([]);
@@ -49,16 +48,15 @@ function App() {
   const [showInfo, setShowInfo] = useState(false);
   const [api, contextHolder] = notification.useNotification();
 
-  const openNotificationWithIcon = (
-    type: NotificationType,
-    title: string,
-    message: string,
-  ) => {
-    api[type]({
-      message: title,
-      description: message,
-    });
-  };
+  const openNotificationWithIcon = useCallback(
+    (type: NotificationType, title: string, message: string) => {
+      api[type]({
+        message: title,
+        description: message,
+      });
+    },
+    [api],
+  );
 
   useEffect(() => {
     const savedHost = localStorage.getItem("websocketHost");
@@ -69,7 +67,6 @@ function App() {
       console.log(`setWebSocketConfig`);
       setWebSocketConfig({ host: savedHost, port: savedPort });
     } else {
-      console.log(`show settings`);
       setShowSettings(true);
     }
   }, []);
@@ -112,6 +109,7 @@ function App() {
     const service = new WebSocketService(
       `ws://${webSocketConfig.host}:${webSocketConfig.port}/ws`,
       handleAllNodes,
+      openNotificationWithIcon,
     );
     service.setOnMessageListener((event) => {
       const data = JSON.parse(event.data);
@@ -138,7 +136,7 @@ function App() {
     return () => {
       service.closeConnection();
     };
-  }, [webSocketConfig]);
+  }, [webSocketConfig, openNotificationWithIcon]);
 
   const handleSettingsSave = (config: WebSocketConfig) => {
     setWebSocketConfig(config);
@@ -155,6 +153,11 @@ function App() {
     if (socketService) {
       socketService.sendCommand("get_nodes", {}, handleAllNodes);
     } else {
+      openNotificationWithIcon(
+        "error",
+        "Reload Nodes Failed",
+        "server connection not established",
+      );
       console.error("connection not established");
     }
   };
@@ -168,6 +171,11 @@ function App() {
         handleGetNodeResponse,
       );
     } else {
+      openNotificationWithIcon(
+        "error",
+        "Reload Node Failed",
+        "server connection not established",
+      );
       console.error("connection not established");
     }
   };
@@ -177,6 +185,11 @@ function App() {
     if (socketService) {
       socketService.sendCommand("discover", {}, handleDiscoverResponse);
     } else {
+      openNotificationWithIcon(
+        "error",
+        "Discover Failed",
+        "server connection not established",
+      );
       console.error("connection not established");
     }
   };
@@ -192,6 +205,11 @@ function App() {
         },
       );
     } else {
+      openNotificationWithIcon(
+        "error",
+        "Interview Node Failed",
+        "server connection not established",
+      );
       console.error("connection not established");
     }
   };
@@ -203,6 +221,11 @@ function App() {
         console.log(`node remove complete: ${JSON.stringify(data)}`);
       });
     } else {
+      openNotificationWithIcon(
+        "error",
+        "Remove Node Failed",
+        "server connection not established",
+      );
       console.error("connection not established");
     }
   };
@@ -216,16 +239,13 @@ function App() {
         handleCommissionResponse,
       );
     } else {
+      openNotificationWithIcon(
+        "error",
+        "Commission Failed",
+        "server connection not established",
+      );
       console.error("connection not established");
     }
-  };
-
-  const toggleSettings = () => {
-    setShowSettings((prev) => !prev);
-  };
-
-  const toggleInfo = () => {
-    setShowInfo((prev) => !prev);
   };
 
   const hasBridgeNodes = allNodes.some((n) => {
@@ -297,8 +317,14 @@ function App() {
         )}
 
         <FloatButton.Group shape="circle">
-          <FloatButton onClick={toggleInfo} icon=<InfoOutlined /> />
-          <FloatButton onClick={toggleSettings} icon=<SettingOutlined /> />
+          <FloatButton
+            onClick={() => setShowInfo((prev) => !prev)}
+            icon=<InfoOutlined />
+          />
+          <FloatButton
+            onClick={() => setShowSettings((prev) => !prev)}
+            icon=<SettingOutlined />
+          />
         </FloatButton.Group>
       </Layout>
     </ConfigProvider>

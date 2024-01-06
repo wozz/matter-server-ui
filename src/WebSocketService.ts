@@ -1,4 +1,8 @@
-import { CommandMessage, SuccessResultMessage } from "./Model";
+import {
+  CommandMessage,
+  SuccessResultMessage,
+  NotificationType,
+} from "./Model";
 import { v4 as uuidv4 } from "uuid";
 
 class WebSocketService {
@@ -8,10 +12,24 @@ class WebSocketService {
   private messageQueue: string[] = [];
   private callbacks: Map<string, (data: SuccessResultMessage) => void> =
     new Map();
+  private notificationHandler: (
+    type: NotificationType,
+    title: string,
+    message: string,
+  ) => void;
 
-  constructor(url: string, allNodesHandler: (data: any) => void) {
+  constructor(
+    url: string,
+    allNodesHandler: (data: any) => void,
+    notificationHandler: (
+      type: NotificationType,
+      title: string,
+      message: string,
+    ) => void,
+  ) {
     this.socket = new WebSocket(url);
     this.startedListening = false;
+    this.notificationHandler = notificationHandler;
 
     this.socket.onopen = () => {
       console.log("WebSocket Connected");
@@ -39,7 +57,19 @@ class WebSocketService {
       const data = JSON.parse(event.data);
       if (data.message_id && this.callbacks.has(data.message_id)) {
         const callback = this.callbacks.get(data.message_id);
-        callback?.(data);
+        // check for errors
+        if (data.hasOwnProperty("error_code")) {
+          console.error(
+            `command error response: [${data.message_id}] ${data.error_code}: ${data.details}`,
+          );
+          this.notificationHandler(
+            "error",
+            "Command Error",
+            `${data.error_code}: ${data.details}`,
+          );
+        } else {
+          callback?.(data);
+        }
         this.callbacks.delete(data.message_id);
         return; // skip main message handler for callbacks
       }
