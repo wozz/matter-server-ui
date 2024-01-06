@@ -54,7 +54,7 @@ const parseClusterData = (specMatter: any, clusterId: any, attributes: any) => {
         acc[attributeId] = {
           name: attributeInfo.name,
           type: attributeInfo.type,
-          children: attributeInfo.children || [],
+          children: attributeInfo.children,
           details: attributeInfo.details,
           description: attributeInfo.description,
           dataTypeInfo: dataTypeInfo,
@@ -76,11 +76,13 @@ const parseClusterData = (specMatter: any, clusterId: any, attributes: any) => {
 type ClusterAttribute = any;
 
 interface ClusterProps {
+  endpointId: string;
   clusterId: string;
   attributes: { [attributeId: string]: ClusterAttribute };
 }
 
 const MatterClusterInfo: React.FC<ClusterProps> = ({
+  endpointId,
   clusterId,
   attributes,
 }) => {
@@ -109,7 +111,7 @@ const MatterClusterInfo: React.FC<ClusterProps> = ({
           size="small"
           dataSource={Object.entries(clusterInfo.attributes).map(
             ([attributeId, attribute]: any) => ({
-              key: attributeId,
+              key: `${endpointId}-${clusterId}-${attributeId}`,
               name: attribute.name,
               type: attribute.type,
               children: attribute.children,
@@ -141,17 +143,19 @@ const MatterClusterInfo: React.FC<ClusterProps> = ({
                 </>
               )}
               :{" "}
-              <Tooltip
-                title={
-                  item.children
-                    ? `children: ${JSON.stringify(item.children, null, 2)}`
-                    : "attribute not found in spec"
-                }
-              >
+              {item.children ? (
+                <Tooltip
+                  title={`children: ${JSON.stringify(item.children, null, 2)}`}
+                >
+                  <Text>
+                    <pre>{JSON.stringify(item.values, null, 2)}</pre>
+                  </Text>
+                </Tooltip>
+              ) : (
                 <Text>
                   <pre>{JSON.stringify(item.values, null, 2)}</pre>
                 </Text>
-              </Tooltip>
+              )}
             </div>
           )}
         />

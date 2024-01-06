@@ -58,10 +58,11 @@ const NodeData: React.FC<NodeDataProps> = ({ data }) => {
       <Collapse
         items={Object.entries(organizedAttributes).map(
           ([endpointId, clusters], i) => ({
-            key: i.toString(),
+            key: `${data.node_id}-${endpointId}-${i.toString()}`,
             label: `Endpoint ${endpointId}`,
             children: (
               <Collapse
+                size="small"
                 items={Object.entries(clusters).map(
                   ([clusterId, attrs], ii) => ({
                     key: ii.toString(),
@@ -72,6 +73,7 @@ const NodeData: React.FC<NodeDataProps> = ({ data }) => {
                     }]`,
                     children: (
                       <MatterClusterInfo
+                        endpointId={endpointId}
                         clusterId={clusterId}
                         attributes={attrs}
                       />
