@@ -86,7 +86,6 @@ const MatterClusterInfo: React.FC<ClusterProps> = ({
   clusterId,
   attributes,
 }) => {
-  console.log("test");
   const clusterInfo = parseClusterData(SpecMatter, clusterId, attributes);
   const renderCluster = (
     id: string,
