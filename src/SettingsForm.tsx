@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { WebSocketConfig } from "./Model";
-import { Button, Form, Input } from "antd";
+import { Button, Form, Input, Space, Typography } from "antd";
+const { Title } = Typography;
 
 type FieldType = {
   name: string | number | (string | number)[];
@@ -57,29 +58,32 @@ const SettingsForm: React.FC<SettingsFormProps> = ({ onSave }) => {
   };
 
   return (
-    <Form
-      labelCol={{ span: 8 }}
-      wrapperCol={{ span: 16 }}
-      style={{ maxWidth: 600 }}
-      fields={fields}
-      onFieldsChange={(_, allFields) => {
-        setFields(allFields);
-      }}
-      onFinish={onFinish}
-      autoComplete="off"
-    >
-      <Form.Item<FieldType> label="Host" name="host">
-        <Input />
-      </Form.Item>
-      <Form.Item<FieldType> label="Port" name="port">
-        <Input />
-      </Form.Item>
-      <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-        <Button type="primary" htmlType="submit">
-          Submit
-        </Button>
-      </Form.Item>
-    </Form>
+    <Space direction="vertical">
+      <Title level={2}>Settings</Title>
+      <Form
+        labelCol={{ span: 8 }}
+        wrapperCol={{ span: 16 }}
+        style={{ maxWidth: 600 }}
+        fields={fields}
+        onFieldsChange={(_, allFields) => {
+          setFields(allFields);
+        }}
+        onFinish={onFinish}
+        autoComplete="off"
+      >
+        <Form.Item<FieldType> label="Host" name="host">
+          <Input />
+        </Form.Item>
+        <Form.Item<FieldType> label="Port" name="port">
+          <Input />
+        </Form.Item>
+        <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+          <Button type="primary" htmlType="submit">
+            Submit
+          </Button>
+        </Form.Item>
+      </Form>
+    </Space>
   );
 };
 

@@ -32,9 +32,14 @@ export enum EventType {
   ENDPOINT_REMOVED = "endpoint_removed",
 }
 
-export interface EventMessage {
+export interface ServerEventMessage {
   event: EventType;
   data: Object;
+}
+
+export interface EventMessage {
+  receive_time: Date;
+  event: ServerEventMessage;
 }
 
 export function isEvent(data: Object): boolean {

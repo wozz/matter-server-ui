@@ -2,7 +2,7 @@ import React from "react";
 import { Table, Typography } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { MatterNodeData } from "./Model";
-const { Text } = Typography;
+const { Text, Title } = Typography;
 
 interface EndpointTableProps {
   nodes: MatterNodeData[];
@@ -65,7 +65,7 @@ const EndpointTable: React.FC<EndpointTableProps> = ({ nodes }) => {
 
   return (
     <>
-      <h2>Endpoints</h2>
+      <Title level={5}>Endpoints</Title>
       <Table
         columns={columns}
         dataSource={endpointTableData}

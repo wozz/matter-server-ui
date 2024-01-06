@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import {
+  Badge,
   Button,
   Col,
   Form,
@@ -15,10 +16,11 @@ import {
 import type { ColumnsType } from "antd/es/table";
 import { MatterNodeData } from "./Model";
 import {
-  CheckSquareOutlined,
   DeleteOutlined,
   EnterOutlined,
   MonitorOutlined,
+  PartitionOutlined,
+  PlusCircleOutlined,
   ProfileOutlined,
   ReloadOutlined,
   SearchOutlined,
@@ -41,10 +43,15 @@ interface NodeTableProps {
   reloadNode: (nodeId: number) => void;
   discover: () => void;
   removeNode: (nodeId: number) => void;
+  commissionWithCode: (code: string) => void;
 }
 
 type RemoveNodeType = {
   node_id?: string;
+};
+
+type CommissionType = {
+  code?: string;
 };
 
 interface ColumnData {
@@ -65,14 +72,19 @@ const NodeTable: React.FC<NodeTableProps> = ({
   reloadNode,
   discover,
   removeNode,
+  commissionWithCode,
 }) => {
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
   const [selectedNodeData, setSelectedNodeData] =
     useState<MatterNodeData | null>(null);
   const [removeNodeOpen, setRemoveNodeOpen] = useState<boolean>(false);
+  const [commissionOpen, setCommissionOpen] = useState<boolean>(false);
 
   const handleRemoveNodeOpenChange = (newOpen: boolean) => {
     setRemoveNodeOpen(newOpen);
+  };
+  const handleCommissionOpenChange = (newOpen: boolean) => {
+    setCommissionOpen(newOpen);
   };
 
   const showModal = (nodeId: number) => {
@@ -86,44 +98,50 @@ const NodeTable: React.FC<NodeTableProps> = ({
     setIsModalVisible(true);
   };
 
+  const onCommissionFinish = (values: any) => {
+    console.log(`form values: ${JSON.stringify(values)}`);
+    commissionWithCode(values.code);
+    setCommissionOpen(false);
+  };
+
   const columns: ColumnsType<ColumnData> = [
     {
       title: "ID",
       dataIndex: "node_id",
-      width: "20px",
+      width: "50px",
     },
     {
       title: "Available",
       dataIndex: "available",
-      width: "50px",
-    },
-    {
-      title: "Bridge",
-      dataIndex: "is_bridge",
-      width: "50px",
+      width: "80px",
       render: (text, record) => (
-        <>{record.is_bridge && <CheckSquareOutlined />}</>
+        <Badge
+          count={record.is_bridge ? <PartitionOutlined /> : 0}
+          offset={[8, 2]}
+        >
+          {record.available}
+        </Badge>
       ),
     },
     {
       title: "Last Interview",
       dataIndex: "last_interviewed",
-      width: "100px",
+      width: "150px",
     },
     {
       title: "Vendor",
       dataIndex: "vendor",
-      width: "100px",
+      width: "150px",
     },
     {
       title: "Product Name",
       dataIndex: "product_name",
-      width: "200px",
+      width: "240px",
     },
     {
       title: "Serial",
       dataIndex: "serial_number",
-      width: "130px",
+      width: "150px",
       render: (text, record) => (
         <>{record.serial_number && <Text code>{record.serial_number}</Text>}</>
       ),
@@ -131,6 +149,7 @@ const NodeTable: React.FC<NodeTableProps> = ({
     {
       title: "",
       key: "action",
+      width: "150px",
       render: (text, record) => (
         <Space>
           <Tooltip title="interview node">
@@ -185,10 +204,44 @@ const NodeTable: React.FC<NodeTableProps> = ({
       <Space direction="vertical">
         <Row align="bottom">
           <Col flex="auto">
-            <Title level={2}>Nodes</Title>
+            <Title level={4}>Nodes</Title>
           </Col>
           <Col flex="50px">
             <Space>
+              <Popover
+                content={
+                  <>
+                    <Form
+                      layout="inline"
+                      onFinish={onCommissionFinish}
+                      autoComplete="off"
+                    >
+                      <Form.Item<CommissionType> label="Code" name="code">
+                        <Input />
+                      </Form.Item>
+                      <Form.Item>
+                        <Button
+                          htmlType="submit"
+                          type="primary"
+                          size="small"
+                          shape="circle"
+                          icon={<EnterOutlined />}
+                        />
+                      </Form.Item>
+                    </Form>
+                  </>
+                }
+                title="Commission with Code"
+                trigger="click"
+                open={commissionOpen}
+                onOpenChange={handleCommissionOpenChange}
+              >
+                <Button
+                  shape="circle"
+                  size="small"
+                  icon={<PlusCircleOutlined />}
+                />
+              </Popover>
               <Popover
                 content={
                   <>
@@ -256,7 +309,7 @@ const NodeTable: React.FC<NodeTableProps> = ({
           id="json-pretty"
           data={selectedNodeData}
           theme={JSONPrettyMon}
-        ></JSONPretty>
+        />
       </Modal>
     </>
   );

@@ -1,5 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { ConfigProvider, Flex, FloatButton, Layout, Space } from "antd";
+import {
+  Col,
+  ConfigProvider,
+  Flex,
+  FloatButton,
+  Layout,
+  Modal,
+  notification,
+  Row,
+  Space,
+} from "antd";
 import ServerInfoCell from "./ServerInfoCell";
 import EventMessagesLog from "./EventMessageLog";
 import NodeTable from "./NodeTable";
@@ -11,14 +21,17 @@ import {
   ServerInfoMessage,
   isServerInfo,
   EventMessage,
+  ServerEventMessage,
   EventType,
   isEvent,
   MatterNodeData,
   SuccessResultMessage,
   WebSocketConfig,
 } from "./Model";
-import { HomeOutlined, SettingOutlined } from "@ant-design/icons";
+import { HomeOutlined, InfoOutlined, SettingOutlined } from "@ant-design/icons";
 const { Header } = Layout;
+
+type NotificationType = "success" | "info" | "warning" | "error";
 
 function App() {
   const [messages, setMessages] = useState<string[]>([]);
@@ -33,6 +46,19 @@ function App() {
     port: "",
   });
   const [showSettings, setShowSettings] = useState(false);
+  const [showInfo, setShowInfo] = useState(false);
+  const [api, contextHolder] = notification.useNotification();
+
+  const openNotificationWithIcon = (
+    type: NotificationType,
+    title: string,
+    message: string,
+  ) => {
+    api[type]({
+      message: title,
+      description: message,
+    });
+  };
 
   useEffect(() => {
     const savedHost = localStorage.getItem("websocketHost");
@@ -52,7 +78,7 @@ function App() {
     setAllNodes(msg.result);
   };
 
-  const handleNewNode = (newNode: MatterNodeData) => {
+  const handleUpdatedNode = (newNode: MatterNodeData) => {
     setAllNodes((currentNodes) => {
       return currentNodes.map((n) =>
         n.node_id === newNode.node_id ? newNode : n,
@@ -60,8 +86,18 @@ function App() {
     });
   };
 
-  const handleGetNodeResponse = (msg: SuccessResultMessage) => {
+  const handleNewNode = (newNode: MatterNodeData) => {
+    setAllNodes((currentNodes) => {
+      return [...currentNodes, newNode];
+    });
+  };
+
+  const handleCommissionResponse = (msg: SuccessResultMessage) => {
     handleNewNode(msg.result);
+  };
+
+  const handleGetNodeResponse = (msg: SuccessResultMessage) => {
+    handleUpdatedNode(msg.result);
   };
 
   const handleDiscoverResponse = (msg: SuccessResultMessage) => {
@@ -82,13 +118,17 @@ function App() {
       if (isServerInfo(data)) {
         setServerInfo(data);
       } else if (isEvent(data)) {
-        const event = data as EventMessage;
+        const event = data as ServerEventMessage;
         if (event.event === EventType.NODE_UPDATED) {
           const eventNodeData = event.data as MatterNodeData;
-          handleNewNode(eventNodeData);
+          handleUpdatedNode(eventNodeData);
           return;
         }
-        setEventMessages((prevMessages) => [...prevMessages, event]);
+        const eventMsg: EventMessage = {
+          receive_time: new Date(),
+          event: event,
+        };
+        setEventMessages((prevMessages) => [...prevMessages, eventMsg]);
       } else {
         setMessages((prevMessages) => [...prevMessages, event.data]);
       }
@@ -106,6 +146,11 @@ function App() {
   };
 
   const handleReloadNodes = () => {
+    openNotificationWithIcon(
+      "info",
+      "Reloading Nodes",
+      "sending get_nodes command to server",
+    );
     console.log("reloading nodes");
     if (socketService) {
       socketService.sendCommand("get_nodes", {}, handleAllNodes);
@@ -162,8 +207,25 @@ function App() {
     }
   };
 
+  const handleCommissionWithCode = (code: string) => {
+    console.log(`commission with code`);
+    if (socketService) {
+      socketService.sendCommand(
+        "commission_with_code",
+        { code: code, network_only: true },
+        handleCommissionResponse,
+      );
+    } else {
+      console.error("connection not established");
+    }
+  };
+
   const toggleSettings = () => {
     setShowSettings((prev) => !prev);
+  };
+
+  const toggleInfo = () => {
+    setShowInfo((prev) => !prev);
   };
 
   const hasBridgeNodes = allNodes.some((n) => {
@@ -187,41 +249,57 @@ function App() {
             <HomeOutlined /> Matter Server UI
           </Space>
         </Header>
+        {contextHolder}
         {showSettings ? (
           <Flex justify="center">
             <SettingsForm onSave={handleSettingsSave} />
           </Flex>
         ) : (
           <Flex justify="space-around">
-            <Space
-              direction="vertical"
-              size="middle"
-              style={{ display: "flex" }}
-            >
-              <ServerInfoCell serverInfo={serverInfo} />
-              {messages.length > 0 && (
-                <>
-                  <h1>Unknown Messages:</h1>
-                  {messages.map((message, index) => (
-                    <div key={index}>{message}</div>
-                  ))}
-                </>
-              )}
-              <NodeTable
-                nodes={allNodes}
-                onInterviewNode={handleInterviewNode}
-                reloadNodes={handleReloadNodes}
-                reloadNode={handleReloadNode}
-                discover={handleDiscover}
-                removeNode={handleRemoveNode}
-              />
-              {hasBridgeNodes && <EndpointTable nodes={allNodes} />}
-              <EventMessagesLog eventMessages={eventMessages} />
-            </Space>
+            <Row justify="center">
+              <Col span={20}>
+                <Space
+                  direction="vertical"
+                  size="middle"
+                  style={{ display: "flex" }}
+                >
+                  <Modal
+                    closable={false}
+                    open={showInfo}
+                    onOk={() => setShowInfo(false)}
+                    onCancel={() => setShowInfo(false)}
+                  >
+                    <ServerInfoCell serverInfo={serverInfo} />
+                  </Modal>
+                  {messages.length > 0 && (
+                    <>
+                      <h1>Unknown Messages:</h1>
+                      {messages.map((message, index) => (
+                        <div key={index}>{message}</div>
+                      ))}
+                    </>
+                  )}
+                  <NodeTable
+                    nodes={allNodes}
+                    onInterviewNode={handleInterviewNode}
+                    reloadNodes={handleReloadNodes}
+                    reloadNode={handleReloadNode}
+                    discover={handleDiscover}
+                    removeNode={handleRemoveNode}
+                    commissionWithCode={handleCommissionWithCode}
+                  />
+                  {hasBridgeNodes && <EndpointTable nodes={allNodes} />}
+                  <EventMessagesLog eventMessages={eventMessages} />
+                </Space>
+              </Col>
+            </Row>
           </Flex>
         )}
 
-        <FloatButton onClick={toggleSettings} icon=<SettingOutlined /> />
+        <FloatButton.Group shape="circle">
+          <FloatButton onClick={toggleInfo} icon=<InfoOutlined /> />
+          <FloatButton onClick={toggleSettings} icon=<SettingOutlined /> />
+        </FloatButton.Group>
       </Layout>
     </ConfigProvider>
   );
