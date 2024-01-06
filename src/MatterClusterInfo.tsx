@@ -1,7 +1,8 @@
 import React from "react";
-import { List, Tooltip } from "antd";
+import { List, Tooltip, Typography } from "antd";
 
 import { SpecMatter } from "./spec";
+const { Text } = Typography;
 
 export const clusterById = (clusterId: string) => {
   return findClusterById(SpecMatter, clusterId);
@@ -71,12 +72,14 @@ const MatterClusterInfo: React.FC<ClusterProps> = ({
     }
     return (
       <div>
-        <p>Name: {clusterInfo.clusterName}</p>
-        <p>Classification: {clusterInfo.classification}</p>
-        <p>Details: {clusterInfo.details}</p>
-
+        <Text>Name: {clusterInfo.clusterName}</Text>
+        <br />
+        <Text>Classification: {clusterInfo.classification}</Text>
+        <br />
+        <Text>Details: {clusterInfo.details}</Text>
+        <br />
         <List
-          header="Attributes:"
+          header={<Text strong>Attributes:</Text>}
           size="small"
           dataSource={Object.entries(clusterInfo.attributes).map(
             ([attributeId, attribute]: any) => ({
@@ -89,7 +92,8 @@ const MatterClusterInfo: React.FC<ClusterProps> = ({
           )}
           renderItem={(item) => (
             <div key={item.key}>
-              {item.name} [{item.type}]:{" "}
+              <Text strong>{item.name}</Text>{" "}
+              <Text type="secondary">[{item.type}]</Text>:{" "}
               <Tooltip
                 title={
                   item.children
@@ -97,7 +101,9 @@ const MatterClusterInfo: React.FC<ClusterProps> = ({
                     : "attribute not found in spec"
                 }
               >
-                <pre>{JSON.stringify(item.values, null, 2)}</pre>
+                <Text>
+                  <pre>{JSON.stringify(item.values, null, 2)}</pre>
+                </Text>
               </Tooltip>
             </div>
           )}
