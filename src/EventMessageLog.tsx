@@ -4,6 +4,7 @@ import type { ColumnsType } from "antd/es/table";
 import { EventMessage } from "./Model";
 import JSONPretty from "react-json-pretty";
 import DisplayDate from "./DisplayDate";
+import AttributeInfoDisplay from "./AttributeInfoDisplay";
 const { Title } = Typography;
 
 interface EventMessageLogProps {
@@ -16,6 +17,7 @@ interface EventMessageRow {
   receive_time: React.ReactNode;
   data: Object;
   parsed?: React.ReactNode;
+  updateInfo?: React.ReactNode;
 }
 
 const columns: ColumnsType<EventMessageRow> = [
@@ -28,6 +30,13 @@ const columns: ColumnsType<EventMessageRow> = [
     title: "Event",
     dataIndex: "event",
     width: "160px",
+    render: (text, record) => (
+      <>
+        {record.event === "attribute_updated" && record.updateInfo
+          ? record.updateInfo
+          : record.event}
+      </>
+    ),
   },
   {
     title: "Details",
@@ -45,23 +54,35 @@ const parseEvent = (eventType: string, data: Object): React.ReactNode => {
     case "attribute_updated":
       const attributeUpdate = data as Array<any>;
       return (
-        <>
-          Node: {attributeUpdate[0]} Attribute: {attributeUpdate[1]} Value:{" "}
-          {String(attributeUpdate[2])}
-        </>
+        <AttributeInfoDisplay
+          path={attributeUpdate[1]}
+          value={attributeUpdate[2]}
+        />
       );
     default:
       return JSON.stringify(data);
   }
 };
 
+const createUpdateInfo = (eventType: string, data: Object): React.ReactNode => {
+  switch (eventType) {
+    case "attribute_updated":
+      const attributeUpdate = data as Array<any>;
+      return <>Node {attributeUpdate[0]} updated</>;
+    default:
+      return <></>;
+  }
+};
+
 const EventMessageLog: React.FC<EventMessageLogProps> = ({ eventMessages }) => {
+  const totalMessages = eventMessages.length;
   const eventMessageData: EventMessageRow[] = eventMessages.map((e, i) => ({
-    key: i,
+    key: totalMessages - i,
     event: e.event.event,
     data: e.event.data,
     receive_time: <DisplayDate reverse date={e.receive_time.toUTCString()} />,
     parsed: parseEvent(e.event.event, e.event.data),
+    updateInfo: createUpdateInfo(e.event.event, e.event.data),
   }));
 
   return (
