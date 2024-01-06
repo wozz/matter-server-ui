@@ -5,8 +5,8 @@
   "dependencies": {
     "@ant-design/icons": "^5.2.6",
     "@testing-library/jest-dom": "^6.0.0",
-    "@testing-library/react": "^13.4.0",
-    "@testing-library/user-event": "^13.5.0",
+    "@testing-library/react": "^14.0.0",
+    "@testing-library/user-event": "^14.0.0",
     "@types/jest": "^29.0.0",
     "@types/node": "^16.18.69",
     "@types/react": "^18.2.46",
