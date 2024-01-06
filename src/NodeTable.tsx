@@ -4,6 +4,7 @@ import type { ColumnsType } from "antd/es/table";
 import { MatterNodeData } from "./Model";
 import {
   DeleteOutlined,
+  DeploymentUnitOutlined,
   MonitorOutlined,
   PartitionOutlined,
   PlusCircleOutlined,
@@ -20,6 +21,7 @@ import moment from "moment";
 import JSONPretty from "react-json-pretty";
 import TooltipButton from "./TooltipButton";
 import PopoverButton from "./PopoverButton";
+import NodeData from "./NodeData";
 const { Text, Title } = Typography;
 
 var JSONPrettyMon = require("react-json-pretty/dist/monikai");
@@ -55,6 +57,7 @@ const NodeTable: React.FC<NodeTableProps> = ({
   commissionWithCode,
 }) => {
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
+  const [isNodeModalVisible, setIsNodeModalVisible] = useState<boolean>(false);
   const [selectedNodeData, setSelectedNodeData] =
     useState<MatterNodeData | null>(null);
 
@@ -63,10 +66,23 @@ const NodeTable: React.FC<NodeTableProps> = ({
       return n.node_id === nodeId;
     });
     if (!nodeData) {
+      console.error(`node not found ${nodeId}`);
       return;
     }
     setSelectedNodeData(nodeData);
     setIsModalVisible(true);
+  };
+
+  const showNodeModal = (nodeId: number) => {
+    const nodeData = nodes.find((n) => {
+      return n.node_id === nodeId;
+    });
+    if (!nodeData) {
+      console.error(`node not found ${nodeId}`);
+      return;
+    }
+    setSelectedNodeData(nodeData);
+    setIsNodeModalVisible(true);
   };
 
   const onCommissionSubmit = (values: any) => {
@@ -123,9 +139,14 @@ const NodeTable: React.FC<NodeTableProps> = ({
       render: (text, record) => (
         <Space>
           <TooltipButton
+            tooltipTitle="view node info"
+            onClick={() => showNodeModal(record.node_id)}
+            type="primary"
+            icon={<DeploymentUnitOutlined />}
+          />
+          <TooltipButton
             tooltipTitle="interview node"
             onClick={() => onInterviewNode(record.node_id)}
-            type="primary"
             icon={<MonitorOutlined />}
           />
           <TooltipButton
@@ -201,6 +222,16 @@ const NodeTable: React.FC<NodeTableProps> = ({
           size="small"
         />
       </Space>
+      <Modal
+        title="Node Info"
+        open={isNodeModalVisible}
+        onOk={() => setIsNodeModalVisible(false)}
+        onCancel={() => setIsNodeModalVisible(false)}
+        width={800}
+      >
+        <NodeData data={selectedNodeData} />
+        {/*<NodeData data={selectedNodeData} />*/}
+      </Modal>
       <Modal
         title="Node Raw Data"
         open={isModalVisible}

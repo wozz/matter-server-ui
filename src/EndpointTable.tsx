@@ -55,7 +55,7 @@ const EndpointTable: React.FC<EndpointTableProps> = ({ nodes }) => {
         const endpointId = parseInt(k.split("/")[0], 10);
         return {
           key: `${i}-${ii}`,
-          endpoint_id: `${n.node_id}-${endpointId}`,
+          endpoint_id: `${n.node_id}:${endpointId}`,
           vendor: v,
           product: n.attributes[`${endpointId}/57/3`],
           serial_number: n.attributes[`${endpointId}/57/15`],
