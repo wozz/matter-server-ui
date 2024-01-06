@@ -126,7 +126,7 @@ function App() {
           receive_time: new Date(),
           event: event,
         };
-        setEventMessages((prevMessages) => [...prevMessages, eventMsg]);
+        setEventMessages((prevMessages) => [eventMsg, ...prevMessages]);
       } else {
         setMessages((prevMessages) => [...prevMessages, event.data]);
       }

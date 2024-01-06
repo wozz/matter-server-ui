@@ -14,7 +14,8 @@ interface EventMessageRow {
   key: number;
   event: string;
   receive_time: React.ReactNode;
-  data: string;
+  data: Object;
+  parsed?: React.ReactNode;
 }
 
 const columns: ColumnsType<EventMessageRow> = [
@@ -26,22 +27,41 @@ const columns: ColumnsType<EventMessageRow> = [
   {
     title: "Event",
     dataIndex: "event",
-    width: "180px",
+    width: "160px",
   },
   {
-    title: "Raw Data",
-    dataIndex: "data",
+    title: "Details",
+    dataIndex: "parsed",
     width: "400px",
     ellipsis: true,
+    render: (text, record) => (
+      <>{record.parsed ? record.parsed : JSON.stringify(record.data)}</>
+    ),
   },
 ];
+
+const parseEvent = (eventType: string, data: Object): React.ReactNode => {
+  switch (eventType) {
+    case "attribute_updated":
+      const attributeUpdate = data as Array<any>;
+      return (
+        <>
+          Node: {attributeUpdate[0]} Attribute: {attributeUpdate[1]} Value:{" "}
+          {String(attributeUpdate[2])}
+        </>
+      );
+    default:
+      return JSON.stringify(data);
+  }
+};
 
 const EventMessageLog: React.FC<EventMessageLogProps> = ({ eventMessages }) => {
   const eventMessageData: EventMessageRow[] = eventMessages.map((e, i) => ({
     key: i,
     event: e.event.event,
-    data: JSON.stringify(e.event.data),
-    receive_time: <DisplayDate date={e.receive_time.toUTCString()} />,
+    data: e.event.data,
+    receive_time: <DisplayDate reverse date={e.receive_time.toUTCString()} />,
+    parsed: parseEvent(e.event.event, e.event.data),
   }));
 
   return (
@@ -60,7 +80,10 @@ const EventMessageLog: React.FC<EventMessageLogProps> = ({ eventMessages }) => {
               </Col>
             </Row>
           ),
-          rowExpandable: (record) => record.data.length > 60,
+          rowExpandable: (record) =>
+            record.event === "attribute_updated" ||
+            JSON.stringify(record.data).length > 60,
+          expandRowByClick: true,
         }}
       />
     </>
