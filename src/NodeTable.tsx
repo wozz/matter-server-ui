@@ -45,6 +45,7 @@ interface ColumnData {
   vendor: string;
   product_name: string;
   serial_number: string;
+  align?: string;
 }
 
 const NodeTable: React.FC<NodeTableProps> = ({
@@ -136,6 +137,7 @@ const NodeTable: React.FC<NodeTableProps> = ({
       title: "",
       key: "action",
       width: "180px",
+      align: "right",
       render: (text, record) => (
         <Space>
           <TooltipButton

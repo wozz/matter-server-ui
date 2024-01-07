@@ -9,6 +9,7 @@ import {
   notification,
   Row,
   Space,
+  Tooltip,
 } from "antd";
 import ServerInfoCell from "./ServerInfoCell";
 import EventMessagesLog from "./EventMessageLog";
@@ -29,7 +30,12 @@ import {
   SuccessResultMessage,
   WebSocketConfig,
 } from "./Model";
-import { HomeOutlined, InfoOutlined, SettingOutlined } from "@ant-design/icons";
+import {
+  BugOutlined,
+  HomeOutlined,
+  InfoOutlined,
+  SettingOutlined,
+} from "@ant-design/icons";
 const { Header } = Layout;
 
 function App() {
@@ -303,11 +309,26 @@ function App() {
         <FloatButton.Group shape="circle">
           <FloatButton
             onClick={() => setShowInfo((prev) => !prev)}
-            icon=<InfoOutlined />
+            icon=<Tooltip title="show server info" placement="left">
+              <InfoOutlined />
+            </Tooltip>
+          />
+          <FloatButton
+            onClick={() =>
+              window.open(
+                "https://github.com/wozz/matter-server-ui/issues",
+                "_open",
+              )
+            }
+            icon=<Tooltip title="report a bug" placement="left">
+              <BugOutlined />
+            </Tooltip>
           />
           <FloatButton
             onClick={() => setShowSettings((prev) => !prev)}
-            icon=<SettingOutlined />
+            icon=<Tooltip title="update settings" placement="left">
+              <SettingOutlined />
+            </Tooltip>
           />
         </FloatButton.Group>
       </Layout>
