@@ -68,6 +68,8 @@ export interface MatterNodeData {
 export interface WebSocketConfig {
   host: string;
   port: string;
+  scheme: string;
+  path: string;
 }
 
 export type NotificationType = "success" | "info" | "warning" | "error";

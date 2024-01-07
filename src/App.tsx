@@ -49,6 +49,8 @@ function App() {
   const [webSocketConfig, setWebSocketConfig] = useState<WebSocketConfig>({
     host: "",
     port: "",
+    scheme: "ws",
+    path: "/ws",
   });
   const [showSettings, setShowSettings] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
@@ -67,11 +69,18 @@ function App() {
   useEffect(() => {
     const savedHost = localStorage.getItem("websocketHost");
     const savedPort = localStorage.getItem("websocketPort");
+    const savedScheme = localStorage.getItem("websocketScheme");
+    const savedPath = localStorage.getItem("websocketPath");
 
     console.log(`savedHost: ${savedHost} / savedPort: ${savedPort}`);
     if (savedHost && savedPort) {
       console.log(`setWebSocketConfig`);
-      setWebSocketConfig({ host: savedHost, port: savedPort });
+      setWebSocketConfig({
+        host: savedHost,
+        port: savedPort,
+        scheme: savedScheme || "ws",
+        path: savedPath || "/ws",
+      });
     } else {
       setShowSettings(true);
     }
@@ -108,12 +117,17 @@ function App() {
   };
 
   useEffect(() => {
-    if (!webSocketConfig.host || !webSocketConfig.port) {
+    if (
+      !webSocketConfig.host ||
+      !webSocketConfig.port ||
+      !webSocketConfig.scheme ||
+      !webSocketConfig.path
+    ) {
       console.log("web socket config not setup yet");
       return;
     }
     const service = new WebSocketService(
-      `ws://${webSocketConfig.host}:${webSocketConfig.port}/ws`,
+      `${webSocketConfig.scheme}://${webSocketConfig.host}:${webSocketConfig.port}${webSocketConfig.path}`,
       handleAllNodes,
       openNotificationWithIcon,
     );

@@ -7,6 +7,8 @@ type FieldType = {
   name: string | number | (string | number)[];
   host?: string;
   port?: string;
+  scheme?: string;
+  path?: string;
 };
 
 interface FieldData {
@@ -24,17 +26,25 @@ interface SettingsFormProps {
 const SettingsForm: React.FC<SettingsFormProps> = ({ onSave }) => {
   const [host, setHost] = useState<string>("");
   const [port, setPort] = useState<string>("");
+  const [scheme, setScheme] = useState<string>("ws");
+  const [path, setPath] = useState<string>("/ws");
   const [fields, setFields] = useState<FieldData[]>([
     { name: ["host"], value: host },
     { name: ["port"], value: port },
+    { name: ["scheme"], value: scheme },
+    { name: ["path"], value: path },
   ]);
 
   useEffect(() => {
     // Load saved settings from local storage
     const savedHost = localStorage.getItem("websocketHost");
     const savedPort = localStorage.getItem("websocketPort");
+    const savedScheme = localStorage.getItem("websocketScheme");
+    const savedPath = localStorage.getItem("websocketPath");
     if (savedHost) setHost(savedHost);
     if (savedPort) setPort(savedPort);
+    if (savedScheme) setScheme(savedScheme);
+    if (savedPath) setPath(savedPath);
     setFields([
       {
         name: ["host"],
@@ -44,15 +54,27 @@ const SettingsForm: React.FC<SettingsFormProps> = ({ onSave }) => {
         name: ["port"],
         value: savedPort,
       },
+      {
+        name: ["scheme"],
+        value: savedScheme || "ws",
+      },
+      {
+        name: ["path"],
+        value: savedPath || "/ws",
+      },
     ]);
   }, []);
 
   const onFinish = (values: FieldType) => {
     localStorage.setItem("websocketHost", values.host || "");
     localStorage.setItem("websocketPort", values.port || "");
+    localStorage.setItem("websocketScheme", values.scheme || "ws");
+    localStorage.setItem("websocketPath", values.path || "/ws");
     const wsc: WebSocketConfig = {
       host: values.host || "",
       port: values.port || "",
+      scheme: values.scheme || "ws",
+      path: values.path || "/ws",
     };
     onSave(wsc);
   };
@@ -71,10 +93,16 @@ const SettingsForm: React.FC<SettingsFormProps> = ({ onSave }) => {
         onFinish={onFinish}
         autoComplete="off"
       >
+        <Form.Item<FieldType> label="Scheme" name="scheme">
+          <Input />
+        </Form.Item>
         <Form.Item<FieldType> label="Host" name="host">
           <Input />
         </Form.Item>
         <Form.Item<FieldType> label="Port" name="port">
+          <Input />
+        </Form.Item>
+        <Form.Item<FieldType> label="Path" name="path">
           <Input />
         </Form.Item>
         <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
