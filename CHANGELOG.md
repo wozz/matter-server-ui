@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.4 (pending)
+
+### Bugfix
+
+- **settings**: fix port settings for auto HA
+
 ## 0.2.3 (2024-01-09)
 
 ### Features

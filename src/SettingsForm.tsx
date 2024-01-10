@@ -87,7 +87,10 @@ const SettingsForm: React.FC<SettingsFormProps> = ({ onSave }) => {
       },
       {
         name: ["port"],
-        value: window.location.port,
+        value:
+          window.location.port || window.location.protocol === "http"
+            ? "80"
+            : "443",
       },
       {
         name: ["scheme"],
