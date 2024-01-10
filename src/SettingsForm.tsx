@@ -79,6 +79,27 @@ const SettingsForm: React.FC<SettingsFormProps> = ({ onSave }) => {
     onSave(wsc);
   };
 
+  const setHAAddonDefaults = () => {
+    setFields([
+      {
+        name: ["host"],
+        value: window.location.hostname,
+      },
+      {
+        name: ["port"],
+        value: window.location.port,
+      },
+      {
+        name: ["scheme"],
+        value: window.location.protocol.replace("http", "ws").replace(":", ""),
+      },
+      {
+        name: ["path"],
+        value: `${window.location.pathname}wsproxy?host=localhost`,
+      },
+    ]);
+  };
+
   return (
     <Space direction="vertical">
       <Title level={2}>Settings</Title>
@@ -105,10 +126,15 @@ const SettingsForm: React.FC<SettingsFormProps> = ({ onSave }) => {
         <Form.Item<FieldType> label="Path" name="path">
           <Input />
         </Form.Item>
-        <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-          <Button type="primary" htmlType="submit">
-            Submit
-          </Button>
+        <Form.Item wrapperCol={{ offset: 4, span: 16 }}>
+          <Space>
+            <Button type="dashed" size="small" onClick={setHAAddonDefaults}>
+              HA Addon Defaults
+            </Button>
+            <Button type="primary" size="small" htmlType="submit">
+              Submit
+            </Button>
+          </Space>
         </Form.Item>
       </Form>
     </Space>
