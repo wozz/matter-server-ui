@@ -10,6 +10,7 @@ import {
   Row,
   Space,
   Tooltip,
+  theme,
 } from "antd";
 import ServerInfoCell from "./ServerInfoCell";
 import EventMessagesLog from "./EventMessageLog";
@@ -256,6 +257,7 @@ function App() {
   return (
     <ConfigProvider
       theme={{
+        algorithm: [theme.compactAlgorithm, theme.darkAlgorithm],
         components: {
           Layout: {
             headerBg: "grey",

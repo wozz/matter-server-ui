@@ -98,7 +98,7 @@ const SettingsForm: React.FC<SettingsFormProps> = ({ onSave }) => {
       },
       {
         name: ["path"],
-        value: `${window.location.pathname}wsproxy?host=localhost`,
+        value: `${window.location.pathname}wsproxy?host=homeassistant`,
       },
     ]);
   };
