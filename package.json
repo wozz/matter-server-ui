@@ -87,7 +87,7 @@
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "@types/uuid": "^9.0.7",
     "eslint-config-prettier": "^9.1.0",
-    "husky": "^8.0.3",
+    "husky": "^9.0.0",
     "lint-staged": "^15.2.0",
     "prettier": "3.2.4"
   },
